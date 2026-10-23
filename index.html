@@ -392,31 +392,190 @@
     }
   }
   
-  // ---------- AUTH ----------
-  function loginWithCreds(identifier) {
-    if (!identifier.trim()) return false;
-    userEmail = identifier;
-    loggedIn = true;
-    updateStreakOnLogin();
-    saveAllData();
-    renderApp();
-    return true;
+  // ---------- AMAZON COGNITO AUTHENTICATION ----------
+  const COGNITO_DOMAIN = "https://us-east-1ze1lof1ye.auth.us-east-1.amazoncognito.com";
+  const COGNITO_CLIENT_ID = "4anv9odruvjtbm84sbtpl4hpmd";
+  const REDIRECT_URI = "https://staging.dy3f0mmo0bton.amplifyapp.com/";
+  const API_URL = "https://gl8fu5pf2i.execute-api.us-east-1.amazonaws.com/health";
+
+  function randomString(length = 64) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+    const bytes = crypto.getRandomValues(new Uint8Array(length));
+    return Array.from(bytes, b => chars[b % chars.length]).join("");
   }
-  
+
+  function base64UrlEncode(buffer) {
+    let binary = "";
+    new Uint8Array(buffer).forEach(byte => binary += String.fromCharCode(byte));
+    return btoa(binary).replace(/\\+/g, "-").replace(/\\//g, "_").replace(/=+$/, "");
+  }
+
+  async function createCodeChallenge(verifier) {
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+    return base64UrlEncode(digest);
+  }
+
+  function decodeJwtPayload(token) {
+    try {
+      const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      return JSON.parse(decodeURIComponent(escape(atob(part))));
+    } catch (error) {
+      console.warn("Could not read Cognito token details.", error);
+      return {};
+    }
+  }
+
+  async function loginWithCreds() {
+    try {
+      const verifier = randomString();
+      const challenge = await createCodeChallenge(verifier);
+      sessionStorage.setItem("pkce_verifier", verifier);
+      const params = new URLSearchParams({
+        response_type: "code",
+        client_id: COGNITO_CLIENT_ID,
+        redirect_uri: REDIRECT_URI,
+        scope: "openid email profile",
+        code_challenge_method: "S256",
+        code_challenge: challenge
+      });
+      window.location.assign(`${COGNITO_DOMAIN}/oauth2/authorize?${params.toString()}`);
+    } catch (error) {
+      console.error(error);
+      alert("Could not start secure sign-in. Please use the deployed HTTPS website and try again.");
+    }
+  }
+
+  async function exchangeCognitoCode(code) {
+    const verifier = sessionStorage.getItem("pkce_verifier");
+    if (!verifier) throw new Error("The sign-in session expired. Please sign in again.");
+
+    const response = await fetch(`${COGNITO_DOMAIN}/oauth2/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id: COGNITO_CLIENT_ID,
+        code,
+        redirect_uri: REDIRECT_URI,
+        code_verifier: verifier
+      })
+    });
+    const tokens = await response.json();
+    if (!response.ok || !tokens.id_token) {
+      throw new Error(tokens.error_description || tokens.error || "Cognito token exchange failed.");
+    }
+    sessionStorage.setItem("cognito_id_token", tokens.id_token);
+    if (tokens.access_token) sessionStorage.setItem("cognito_access_token", tokens.access_token);
+    sessionStorage.removeItem("pkce_verifier");
+    return tokens.id_token;
+  }
+
+  async function loadHealthFromAWS() {
+    const token = sessionStorage.getItem("cognito_id_token");
+    if (!token) return;
+    const response = await fetch(API_URL, {
+      method: "GET",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error(`Could not load saved health data (HTTP ${response.status}).`);
+    const result = await response.json();
+    if (result.item) {
+      if (result.item.weight != null && Number.isFinite(Number(result.item.weight))) weight = Number(result.item.weight);
+      if (result.item.waterIntake != null && Number.isFinite(Number(result.item.waterIntake))) waterIntake = Number(result.item.waterIntake);
+      saveAllData();
+    }
+  }
+
+  async function saveHealthToAWS() {
+    const token = sessionStorage.getItem("cognito_id_token");
+    if (!token) return;
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ weight, waterIntake })
+      });
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.error || `Save failed (HTTP ${response.status}).`);
+      }
+    } catch (error) {
+      console.error("AWS health-data save failed:", error);
+      alert("Your change is shown on this page, but it could not be saved to AWS. Please check the connection and try again.");
+    }
+  }
+
+  async function handleCognitoCallback() {
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get("error");
+    if (authError) {
+      const description = params.get("error_description") || authError;
+      window.history.replaceState({}, document.title, REDIRECT_URI);
+      sessionStorage.removeItem("pkce_verifier");
+      alert(`Cognito sign-in was not completed: ${description}`);
+      loggedIn = false;
+      renderApp();
+      return;
+    }
+
+    let token = sessionStorage.getItem("cognito_id_token");
+    const code = params.get("code");
+    if (code) {
+      try {
+        token = await exchangeCognitoCode(code);
+        window.history.replaceState({}, document.title, REDIRECT_URI);
+      } catch (error) {
+        console.error(error);
+        window.history.replaceState({}, document.title, REDIRECT_URI);
+        sessionStorage.removeItem("pkce_verifier");
+        alert("Sign-in could not be completed. Please try signing in again.");
+        loggedIn = false;
+        renderApp();
+        return;
+      }
+    }
+
+    loggedIn = Boolean(token);
+    if (loggedIn) {
+      const claims = decodeJwtPayload(token);
+      userEmail = claims.email || claims["cognito:username"] || "My Account";
+      try {
+        await loadHealthFromAWS();
+      } catch (error) {
+        console.error("Could not load health data from AWS:", error);
+        alert("You signed in, but saved health data could not be loaded from AWS. Your dashboard will still open.");
+      }
+      updateStreakOnLogin();
+      saveAllData();
+    } else {
+      userEmail = "";
+    }
+    renderApp();
+  }
+
   function logout() {
+    sessionStorage.removeItem("cognito_id_token");
+    sessionStorage.removeItem("cognito_access_token");
+    sessionStorage.removeItem("pkce_verifier");
     loggedIn = false;
     userEmail = "";
-    saveAllData();
-    renderApp();
+    const params = new URLSearchParams({
+      client_id: COGNITO_CLIENT_ID,
+      logout_uri: REDIRECT_URI
+    });
+    window.location.assign(`${COGNITO_DOMAIN}/logout?${params.toString()}`);
   }
-  
+
   // ---------- UPDATE FUNCTIONS (with re-render & persistence) ----------
   function updateFootsteps(val) { footsteps = Math.max(0, val); saveAllData(); renderApp(); }
   function updateCalories(val) { calories = Math.max(0, val); saveAllData(); renderApp(); }
   function updateHeartRate(val) { heartRate = Math.max(30, val); saveAllData(); renderApp(); }
-  function updateWeight(val) { weight = Math.max(20, val); saveAllData(); renderApp(); }
+  function updateWeight(val) { weight = Math.max(20, val); saveAllData(); renderApp(); void saveHealthToAWS(); }
   function updateSleepHours(val) { sleepHours = Math.max(0, val); saveAllData(); renderApp(); }
-  function updateWater(val) { waterIntake = Math.max(0, val); saveAllData(); renderApp(); }
+  function updateWater(val) { waterIntake = Math.max(0, val); saveAllData(); renderApp(); void saveHealthToAWS(); }
   function updateRespiratory(val) { respiratoryRate = Math.max(8, val); saveAllData(); renderApp(); }
   function updateGlucose(val) { bloodGlucose = Math.max(40, val); saveAllData(); renderApp(); }
   function updateSleepGoal(val) { sleepGoal = Math.max(4, val); saveAllData(); renderApp(); }
@@ -487,19 +646,14 @@
           </div>
           <div style="background: white; border-radius: 48px; padding: 28px 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.05);">
             <h3 style="color:#1a6d8f;">Sign in securely</h3>
-            <p style="font-size:0.8rem; margin: 10px 0;">Use email or phone number</p>
-            <input type="text" id="loginIdentifier" placeholder="Email or phone" style="width:100%; margin-bottom: 16px;" />
-            <button id="doLoginBtn" class="btn-primary" style="width:100%">Continue <i class="fas fa-arrow-right"></i></button>
+            <p style="font-size:0.8rem; margin: 10px 0;">Sign in securely with your registered account.</p>
+            <button id="doLoginBtn" class="btn-primary" style="width:100%">Continue to secure sign in <i class="fas fa-arrow-right"></i></button>
             <div class="trial-badge" style="margin-top: 20px; text-align:center; background:#d9eefb;">✨ Free trial active – all features unlocked ✨</div>
           </div>
         </div>
       `;
       const loginBtn = document.getElementById('doLoginBtn');
-      if (loginBtn) loginBtn.onclick = () => {
-        const val = document.getElementById('loginIdentifier').value;
-        if (val) loginWithCreds(val);
-        else alert("Please enter email or phone to continue");
-      };
+      if (loginBtn) loginBtn.onclick = () => loginWithCreds();
       return;
     }
     
@@ -654,7 +808,8 @@
   
   // ----- INITIALIZE APP -----
   loadAllData();
-  renderApp();
+  loggedIn = Boolean(sessionStorage.getItem("cognito_id_token"));
+  handleCognitoCallback();
 </script>
 </body>
 </html>
