@@ -1,425 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Personal Health Tracker | LiveWell</title>
-  <!-- Font Awesome 6 (free icons) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Google Fonts for clean typography -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <style>
-    /* ---------- CSS STYLES ---------- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
-
-    body {
-      background: linear-gradient(145deg, #eef5ff 0%, #d9eaff 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    /* Main App Container */
-    .app-container {
-      max-width: 500px;
-      width: 100%;
-      height: 85vh;
-      min-height: 700px;
-      background: white;
-      border-radius: 40px;
-      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25);
-      overflow-y: auto;
-      overflow-x: hidden;
-      position: relative;
-      transition: all 0.2s ease;
-      scroll-behavior: smooth;
-    }
-
-    /* Custom Scroll */
-    .app-container::-webkit-scrollbar {
-      width: 5px;
-    }
-    .app-container::-webkit-scrollbar-track {
-      background: #e2e8f0;
-      border-radius: 10px;
-    }
-    .app-container::-webkit-scrollbar-thumb {
-      background: #7ab3c8;
-      border-radius: 10px;
-    }
-
-    /* Header with Logo + Free Trial Badge */
-    .app-header {
-      background: #eef7ff;
-      padding: 20px 22px 12px 22px;
-      border-bottom: 1px solid #cde3f5;
-      position: sticky;
-      top: 0;
-      background: white;
-      z-index: 10;
-      backdrop-filter: blur(2px);
-    }
-
-    .logo-area {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      flex-wrap: wrap;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .logo-icon {
-      background: #7bc5e8;
-      width: 44px;
-      height: 44px;
-      border-radius: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 8px rgba(90, 156, 200, 0.2);
-    }
-    .logo-icon i {
-      font-size: 26px;
-      color: white;
-    }
-    .logo-text h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #1a6d8f;
-      letter-spacing: -0.3px;
-    }
-    .logo-text p {
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: #3e9ac7;
-    }
-    .trial-badge {
-      background: #c7e2f5;
-      padding: 6px 12px;
-      border-radius: 60px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: #19647e;
-    }
-    .trial-badge i {
-      margin-right: 4px;
-    }
-
-    /* user greeting & logout row */
-    .user-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 16px;
-    }
-    .greeting {
-      font-size: 0.85rem;
-      font-weight: 500;
-      background: #f0f9ff;
-      padding: 6px 12px;
-      border-radius: 30px;
-      color: #2b7a62;
-    }
-    .logout-btn {
-      background: none;
-      border: 1px solid #bad6ec;
-      padding: 6px 12px;
-      border-radius: 40px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: #4d7c9e;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .logout-btn:hover {
-      background: #e2eff9;
-    }
-
-    /* Dashboard cards grid */
-    .dashboard {
-      padding: 18px 20px 30px;
-    }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #226f8f;
-      margin: 18px 0 12px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-left: 4px solid #7bc5e8;
-      padding-left: 12px;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-      margin-bottom: 12px;
-    }
-
-    .stat-card {
-      background: #f9feff;
-      border-radius: 28px;
-      padding: 14px 12px;
-      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.02);
-      border: 1px solid #d9edfc;
-      transition: 0.2s;
-    }
-    .stat-card i {
-      font-size: 1.8rem;
-      color: #5bb4dc;
-      margin-bottom: 8px;
-    }
-    .stat-card h4 {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #306e88;
-      letter-spacing: 0.3px;
-    }
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #1c5f7c;
-      margin: 5px 0;
-    }
-    .unit {
-      font-size: 0.7rem;
-      font-weight: 400;
-    }
-    button.small-action {
-      background: #eef3fc;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 30px;
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: #3282a3;
-      margin-top: 8px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    button.small-action:hover {
-      background: #e0edf9;
-    }
-
-    /* Food scanner active section */
-    .scanner-active {
-      background: linear-gradient(105deg, #e2f0ff, #ffffff);
-      border-radius: 28px;
-      padding: 16px;
-      margin: 10px 0 12px;
-      border: 1px solid #bddff5;
-    }
-    .flex-between {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .btn-primary {
-      background: #6bc2e8;
-      border: none;
-      padding: 10px 14px;
-      border-radius: 40px;
-      font-weight: 600;
-      color: white;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .btn-primary:hover {
-      background: #4da9d1;
-    }
-    .scan-result {
-      margin-top: 12px;
-      background: #f3faff;
-      border-radius: 20px;
-      padding: 10px;
-      font-size: 0.8rem;
-      color: #1f6c8a;
-    }
-
-    /* injury advice section */
-    .advice-card {
-      background: #eef4fa;
-      border-radius: 24px;
-      padding: 14px;
-      margin-top: 16px;
-    }
-
-    /* back to home floating action */
-    .back-home-btn {
-      position: sticky;
-      bottom: 15px;
-      left: 85%;
-      width: 48px;
-      height: 48px;
-      background: #7bc5e8;
-      border-radius: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.1);
-      cursor: pointer;
-      margin: 10px 20px 20px auto;
-      transition: 0.2s;
-      color: white;
-      z-index: 20;
-    }
-    .back-home-btn i {
-      font-size: 1.4rem;
-    }
-    .back-home-btn:hover {
-      background: #469bc2;
-      transform: scale(1.02);
-    }
-
-    hr {
-      margin: 10px 0;
-      border-color: #e0eff8;
-    }
-    .streak-badge {
-      background: #fef5e3;
-      border-radius: 40px;
-      padding: 10px;
-      text-align: center;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-    input, select {
-      border: 1px solid #cde3f5;
-      border-radius: 50px;
-      padding: 8px 12px;
-      width: 100%;
-      margin-top: 6px;
-      font-size: 0.85rem;
-    }
-    .water-reminder {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin: 10px 0;
-    }
-    .logo-icon i.fa-heartbeat {
-      font-size: 26px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Personal Health Tracker | LiveWell</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Arial,sans-serif}
+body{min-height:100vh;padding:20px;display:flex;justify-content:center;align-items:center;background:linear-gradient(145deg,#eef5ff,#d9eaff);color:#204b60}
+.app-container{width:100%;max-width:500px;height:85vh;min-height:700px;overflow:auto;background:#fff;border-radius:32px;box-shadow:0 25px 45px -12px #0003;position:relative}
+.app-header{position:sticky;top:0;z-index:10;background:#fff;padding:20px 22px 12px;border-bottom:1px solid #cde3f5}
+.logo-area,.user-row,.flex-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px}.logo-icon{width:44px;height:44px;border-radius:50%;background:#7bc5e8;display:grid;place-items:center;color:white;font-size:25px}
+.logo-text h2{font-size:1.15rem;color:#1a6d8f}.logo-text p{font-size:.7rem;color:#3e9ac7}
+.trial-badge{background:#c7e2f5;padding:6px 12px;border-radius:60px;font-size:.7rem;font-weight:600;color:#19647e}
+.user-row{margin-top:14px}.greeting{font-size:.78rem;background:#f0f9ff;padding:7px 10px;border-radius:30px;color:#2b7a62}
+button{cursor:pointer;border:0;transition:.2s}button:hover{filter:brightness(.96)}
+.logout-btn,.small-action{border:1px solid #bad6ec;padding:7px 11px;border-radius:30px;background:#eef3fc;color:#3282a3;font-size:.75rem}
+.dashboard{padding:18px 20px 30px}.stats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.stat-card{background:#f9feff;border:1px solid #d9edfc;border-radius:22px;padding:14px 12px}.stat-card>i{font-size:1.6rem;color:#5bb4dc;margin-bottom:8px}.stat-card h4{font-size:.72rem;color:#306e88}
+.stat-value{font-size:1.35rem;font-weight:800;color:#1c5f7c;margin:5px 0}.unit{font-size:.7rem;font-weight:400}
+.section-title{font-size:1rem;font-weight:700;color:#226f8f;margin:20px 0 12px;display:flex;gap:8px;align-items:center;border-left:4px solid #7bc5e8;padding-left:12px}
+.scanner-active,.advice-card{background:linear-gradient(105deg,#e2f0ff,#fff);border:1px solid #bddff5;border-radius:22px;padding:15px;margin:10px 0 12px}
+.btn-primary{background:#6bc2e8;padding:10px 14px;border-radius:40px;font-weight:700;color:white}
+.scan-result{margin-top:12px;background:#f3faff;border-radius:14px;padding:10px;font-size:.8rem;color:#1f6c8a;overflow-wrap:anywhere}
+input,select{border:1px solid #cde3f5;border-radius:16px;padding:10px 12px;width:100%;margin-top:7px;font-size:.85rem;background:#fff}
+.water-reminder{display:flex;gap:8px;align-items:center;margin:10px 0}.water-reminder input{min-width:0}
+.streak-badge{background:#fef5e3;border-radius:18px;padding:12px;text-align:center;font-weight:700;margin-top:12px;font-size:.85rem}
+.back-home-btn{position:sticky;bottom:14px;margin:10px 20px 20px auto;width:48px;height:48px;border-radius:50%;background:#7bc5e8;color:white;display:grid;place-items:center;box-shadow:0 6px 14px #0002;font-size:1.3rem}
+.login-wrap{padding:40px 24px;display:flex;flex-direction:column;gap:24px}.login-card{background:#fff;border-radius:28px;padding:26px 20px;box-shadow:0 8px 20px #0000000d}.login-card h3{color:#1a6d8f}.login-card p{font-size:.85rem;margin:10px 0 16px}
+@media(max-width:420px){body{padding:8px}.app-container{height:94vh;min-height:650px;border-radius:24px}.dashboard{padding:14px}.app-header{padding:16px}.logo-text h2{font-size:1rem}.trial-badge{font-size:.65rem}}
+</style>
 </head>
 <body>
-<div class="app-container" id="appRoot">
-  <!-- DYNAMIC RENDERING VIA JAVASCRIPT -->
-</div>
-
+<div class="app-container" id="appRoot"></div>
 <script>
-  // ---------- JAVASCRIPT APPLICATION LOGIC ----------
-  // APP STATE
-  let loggedIn = false;
-  let userEmail = "";
-  let streak = 0;
-  let lastLoginDate = null;
-  
-  // Health data state (all features active)
-  let footsteps = 7842;
-  let calories = 2150;
-  let heartRate = 72;
-  let weight = 68; // kg
-  let sleepHours = 7.2;
-  let waterIntake = 4; // glasses
-  let respiratoryRate = 16; // breaths/min
-  let bloodGlucose = 98; // mg/dL
-  let sleepGoal = 8; // hours
-  let workoutMinutes = 32;
-  
-  // Food scan simulated storage
-  let lastScannedFood = null;
-  
-  // ---------- LOCAL STORAGE HELPERS (persist all data) ----------
-  function saveAllData() {
-    const data = { 
-      footsteps, calories, heartRate, weight, sleepHours, waterIntake, 
-      respiratoryRate, bloodGlucose, sleepGoal, workoutMinutes, 
-      streak, lastLoginDate, userEmail, loggedIn 
-    };
-    localStorage.setItem('healthTrackerData', JSON.stringify(data));
-  }
-  
-  function loadAllData() {
-    const raw = localStorage.getItem('healthTrackerData');
-    if (!raw) return;
-    try {
-      const data = JSON.parse(raw);
-      footsteps = data.footsteps ?? 7842;
-      calories = data.calories ?? 2150;
-      heartRate = data.heartRate ?? 72;
-      weight = data.weight ?? 68;
-      sleepHours = data.sleepHours ?? 7.2;
-      waterIntake = data.waterIntake ?? 4;
-      respiratoryRate = data.respiratoryRate ?? 16;
-      bloodGlucose = data.bloodGlucose ?? 98;
-      sleepGoal = data.sleepGoal ?? 8;
-      workoutMinutes = data.workoutMinutes ?? 32;
-      streak = data.streak ?? 0;
-      lastLoginDate = data.lastLoginDate ?? null;
-      userEmail = data.userEmail ?? "";
-      loggedIn = data.loggedIn ?? false;
-    } catch(e) { console.warn(e); }
-  }
-  
-  // Streak logic on login
-  function updateStreakOnLogin() {
-    const today = new Date().toDateString();
-    if (lastLoginDate !== today) {
-      if (lastLoginDate && (new Date(lastLoginDate).getTime() + 86400000 >= new Date().getTime())) {
-        streak += 1;
-      } else if (!lastLoginDate) {
-        streak = 1;
-      } else {
-        streak = 1;
-      }
-      lastLoginDate = today;
-      saveAllData();
-    }
-  }
-  
-  // ---------- AMAZON COGNITO AUTHENTICATION ----------
-  const COGNITO_DOMAIN = "https://us-east-1ze1lof1ye.auth.us-east-1.amazoncognito.com";
-  const COGNITO_CLIENT_ID = "4anv9odruvjtbm84sbtpl4hpmd";
-  const REDIRECT_URI = "https://staging.dy3f0mmo0bton.amplifyapp.com/";
-  const API_URL = "https://gl8fu5pf2i.execute-api.us-east-1.amazonaws.com/health";
+"use strict";
 
- 
-function randomString(length = 64) {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-  const bytes = crypto.getRandomValues(new Uint8Array(length));
-  return Array.from(bytes, b => chars[b % chars.length]).join("");
+/* AWS SETTINGS — keep these matched to your AWS configuration. */
+const COGNITO_DOMAIN = "https://us-east-1ze1lof1ye.auth.us-east-1.amazoncognito.com";
+const COGNITO_CLIENT_ID = "4anv9odruvjtbm84sbtpl4hpmd";
+const REDIRECT_URI = "https://staging.dy3f0mmo0bton.amplifyapp.com/";
+const API_URL = "https://gl8fu5pf2i.execute-api.us-east-1.amazonaws.com/health";
+
+const STORAGE_KEY = "healthTrackerData";
+const TOKEN_KEY = "cognito_id_token";
+let loggedIn = false, userEmail = "", streak = 0, lastLoginDate = null;
+let footsteps = 7842, calories = 2150, heartRate = 72, weight = 68;
+let sleepHours = 7.2, waterIntake = 4, respiratoryRate = 16;
+let bloodGlucose = 98, sleepGoal = 8, workoutMinutes = 32;
+let lastScannedFood = null;
+
+function saveAllData() {
+  const data = {footsteps,calories,heartRate,weight,sleepHours,waterIntake,
+    respiratoryRate,bloodGlucose,sleepGoal,workoutMinutes,streak,lastLoginDate,userEmail};
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  catch (e) { console.warn("Could not save local health data", e); }
 }
 
+function loadAllData() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    footsteps = Number(data.footsteps ?? 7842);
+    calories = Number(data.calories ?? 2150);
+    heartRate = Number(data.heartRate ?? 72);
+    weight = Number(data.weight ?? 68);
+    sleepHours = Number(data.sleepHours ?? 7.2);
+    waterIntake = Number(data.waterIntake ?? 4);
+    respiratoryRate = Number(data.respiratoryRate ?? 16);
+    bloodGlucose = Number(data.bloodGlucose ?? 98);
+    sleepGoal = Number(data.sleepGoal ?? 8);
+    workoutMinutes = Number(data.workoutMinutes ?? 32);
+    streak = Number(data.streak ?? 0);
+    lastLoginDate = data.lastLoginDate ?? null;
+    userEmail = data.userEmail ?? "";
+  } catch (e) {
+    console.warn("Could not read local health data", e);
+  }
+}
+
+function updateStreakOnLogin() {
+  const today = new Date().toDateString();
+  if (lastLoginDate !== today) {
+    if (!lastLoginDate) streak = 1;
+    else {
+      const previous = new Date(lastLoginDate);
+      const days = Math.floor(
+        (new Date(today).getTime() -
+        new Date(previous.toDateString()).getTime()) / 86400000
+      );
+      streak = days === 1 ? streak + 1 : 1;
+    }
+    lastLoginDate = today;
+  }
+  saveAllData();
+}
+
+/* PKCE helpers — safely encode Base64URL without the previous "g is not defined" bug. */
+function randomString(length = 64) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  let result = "";
+  for (let i = 0; i < bytes.length; i++) {
+    result += chars[bytes[i] % chars.length];
+  }
+  return result;
+}
 
 function base64UrlEncode(buffer) {
+  const bytes = new Uint8Array(buffer);
   let binary = "";
-  new Uint8Array(buffer).forEach(byte => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary)
+    .split("+").join("-")
+    .split("/").join("_")
     .replace(/=+$/, "");
 }
 
 async function createCodeChallenge(verifier) {
+  if (!window.crypto || !crypto.subtle) {
+    throw new Error("Secure browser cryptography is unavailable. Open the HTTPS website.");
+  }
   const digest = await crypto.subtle.digest(
     "SHA-256",
     new TextEncoder().encode(verifier)
@@ -427,401 +132,646 @@ async function createCodeChallenge(verifier) {
   return base64UrlEncode(digest);
 }
 
-  function decodeJwtPayload(token) {
-    try {
-      const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-      return JSON.parse(decodeURIComponent(escape(atob(part))));
-    } catch (error) {
-      console.warn("Could not read Cognito token details.", error);
-      return {};
-    }
+function decodeJwtPayload(token) {
+  try {
+    const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = part + "=".repeat((4 - part.length % 4) % 4);
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } catch (e) {
+    console.warn("Could not decode token payload", e);
+    return {};
   }
+}
 
-  async function loginWithCreds() {
-    try {
-      const verifier = randomString();
-      const challenge = await createCodeChallenge(verifier);
-      sessionStorage.setItem("pkce_verifier", verifier);
-      const params = new URLSearchParams({
-        response_type: "code",
-        client_id: COGNITO_CLIENT_ID,
-        redirect_uri: REDIRECT_URI,
-        scope: "openid email phone",
-        code_challenge_method: "S256",
-        code_challenge: challenge
-      });
-      window.location.assign(`${COGNITO_DOMAIN}/oauth2/authorize?${params.toString()}`);
-    } catch (error) {
-      console.error(error);
-      alert("Could not start secure sign-in. Please use the deployed HTTPS website and try again.");
-    }
-  }
+async function loginWithCreds() {
+  try {
+    const verifier = randomString();
+    const challenge = await createCodeChallenge(verifier);
+    sessionStorage.setItem("pkce_verifier", verifier);
 
-  async function exchangeCognitoCode(code) {
-    const verifier = sessionStorage.getItem("pkce_verifier");
-    if (!verifier) throw new Error("The sign-in session expired. Please sign in again.");
-
-    const response = await fetch(`${COGNITO_DOMAIN}/oauth2/token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        grant_type: "authorization_code",
-        client_id: COGNITO_CLIENT_ID,
-        code,
-        redirect_uri: REDIRECT_URI,
-        code_verifier: verifier
-      })
+    const params = new URLSearchParams({
+      response_type: "code",
+      client_id: COGNITO_CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
+      scope: "openid email phone",
+      code_challenge_method: "S256",
+      code_challenge: challenge
     });
-    const tokens = await response.json();
-    if (!response.ok || !tokens.id_token) {
-      throw new Error(tokens.error_description || tokens.error || "Cognito token exchange failed.");
-    }
-    sessionStorage.setItem("cognito_id_token", tokens.id_token);
-    if (tokens.access_token) sessionStorage.setItem("cognito_access_token", tokens.access_token);
-    sessionStorage.removeItem("pkce_verifier");
-    return tokens.id_token;
+
+    window.location.assign(
+      `${COGNITO_DOMAIN}/oauth2/authorize?${params.toString()}`
+    );
+  } catch (e) {
+    console.error("Could not start Cognito sign-in:", e);
+    alert("Could not start secure sign-in: " +
+      (e.message || "Please open the deployed HTTPS website and try again."));
+  }
+}
+
+async function exchangeCognitoCode(code) {
+  const verifier = sessionStorage.getItem("pkce_verifier");
+  if (!verifier) {
+    throw new Error("The sign-in session expired. Please start sign-in again.");
   }
 
-  async function loadHealthFromAWS() {
-    const token = sessionStorage.getItem("cognito_id_token");
-    if (!token) return;
+  const response = await fetch(`${COGNITO_DOMAIN}/oauth2/token`, {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: new URLSearchParams({
+      grant_type: "authorization_code",
+      client_id: COGNITO_CLIENT_ID,
+      code,
+      redirect_uri: REDIRECT_URI,
+      code_verifier: verifier
+    })
+  });
+
+  const tokens = await response.json();
+  if (!response.ok || !tokens.id_token) {
+    throw new Error(
+      tokens.error_description || tokens.error || "Cognito token exchange failed."
+    );
+  }
+
+  sessionStorage.setItem(TOKEN_KEY, tokens.id_token);
+  if (tokens.access_token) {
+    sessionStorage.setItem("cognito_access_token", tokens.access_token);
+  }
+  sessionStorage.removeItem("pkce_verifier");
+  return tokens.id_token;
+}
+
+async function loadHealthFromAWS() {
+  const token = sessionStorage.getItem(TOKEN_KEY);
+  if (!token) return;
+
+  const response = await fetch(API_URL, {
+    headers: {Authorization: `Bearer ${token}`}
+  });
+
+  if (!response.ok) {
+    throw new Error(`Could not load saved health data (HTTP ${response.status}).`);
+  }
+
+  const result = await response.json();
+  if (result.item) {
+    if (result.item.weight != null &&
+        Number.isFinite(Number(result.item.weight))) {
+      weight = Number(result.item.weight);
+    }
+    if (result.item.waterIntake != null &&
+        Number.isFinite(Number(result.item.waterIntake))) {
+      waterIntake = Number(result.item.waterIntake);
+    }
+    saveAllData();
+  }
+}
+
+async function saveHealthToAWS() {
+  const token = sessionStorage.getItem(TOKEN_KEY);
+  if (!token) return;
+
+  try {
     const response = await fetch(API_URL, {
-      method: "GET",
-      headers: { "Authorization": `Bearer ${token}` }
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({weight, waterIntake})
     });
-    if (!response.ok) throw new Error(`Could not load saved health data (HTTP ${response.status}).`);
-    const result = await response.json();
-    if (result.item) {
-      if (result.item.weight != null && Number.isFinite(Number(result.item.weight))) weight = Number(result.item.weight);
-      if (result.item.waterIntake != null && Number.isFinite(Number(result.item.waterIntake))) waterIntake = Number(result.item.waterIntake);
-      saveAllData();
+
+    if (!response.ok) {
+      const detail = await response.json().catch(() => ({}));
+      throw new Error(detail.error || `Save failed (HTTP ${response.status}).`);
     }
+  } catch (e) {
+    console.error("AWS health-data save failed:", e);
+    alert("Your change is shown on this page, but could not be saved to AWS. Check the connection and try again.");
+  }
+}
+  /* Handle Cognito's redirect back to the application. */
+async function handleAuthentication() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  const error = params.get("error");
+
+  if (error) {
+    const message = params.get("error_description") || error;
+    window.history.replaceState({}, document.title, REDIRECT_URI);
+    renderLogin(message);
+    return;
   }
 
-  async function saveHealthToAWS() {
-    const token = sessionStorage.getItem("cognito_id_token");
-    if (!token) return;
+  if (code) {
     try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ weight, waterIntake })
-      });
-      if (!response.ok) {
-        const detail = await response.json().catch(() => ({}));
-        throw new Error(detail.error || `Save failed (HTTP ${response.status}).`);
-      }
-    } catch (error) {
-      console.error("AWS health-data save failed:", error);
-      alert("Your change is shown on this page, but it could not be saved to AWS. Please check the connection and try again.");
+      const token = await exchangeCognitoCode(code);
+      const payload = decodeJwtPayload(token);
+      userEmail = payload.email || payload["cognito:username"] || "User";
+      loggedIn = true;
+      updateStreakOnLogin();
+      window.history.replaceState({}, document.title, REDIRECT_URI);
+      await loadHealthFromAWS();
+      renderDashboard();
+    } catch (e) {
+      console.error("Authentication error:", e);
+      sessionStorage.removeItem(TOKEN_KEY);
+      window.history.replaceState({}, document.title, REDIRECT_URI);
+      renderLogin(e.message || "Sign-in failed. Please try again.");
     }
+    return;
   }
 
-  async function handleCognitoCallback() {
-    const params = new URLSearchParams(window.location.search);
-    const authError = params.get("error");
-    if (authError) {
-      const description = params.get("error_description") || authError;
-      window.history.replaceState({}, document.title, REDIRECT_URI);
-      sessionStorage.removeItem("pkce_verifier");
-      alert(`Cognito sign-in was not completed: ${description}`);
-      loggedIn = false;
-      renderApp();
-      return;
-    }
-
-    let token = sessionStorage.getItem("cognito_id_token");
-    const code = params.get("code");
-    if (code) {
-      try {
-        token = await exchangeCognitoCode(code);
-        window.history.replaceState({}, document.title, REDIRECT_URI);
-      } catch (error) {
-        console.error(error);
-        window.history.replaceState({}, document.title, REDIRECT_URI);
-        sessionStorage.removeItem("pkce_verifier");
-        alert("Sign-in could not be completed. Please try signing in again.");
-        loggedIn = false;
-        renderApp();
-        return;
-      }
-    }
-
-    loggedIn = Boolean(token);
-    if (loggedIn) {
-      const claims = decodeJwtPayload(token);
-      userEmail = claims.email || claims["cognito:username"] || "My Account";
+  const token = sessionStorage.getItem(TOKEN_KEY);
+  if (token) {
+    const payload = decodeJwtPayload(token);
+    if (payload.exp && payload.exp * 1000 > Date.now()) {
+      userEmail = payload.email || payload["cognito:username"] || "User";
+      loggedIn = true;
+      updateStreakOnLogin();
       try {
         await loadHealthFromAWS();
-      } catch (error) {
-        console.error("Could not load health data from AWS:", error);
-        alert("You signed in, but saved health data could not be loaded from AWS. Your dashboard will still open.");
+      } catch (e) {
+        console.warn("AWS data could not be loaded:", e);
       }
-      updateStreakOnLogin();
-      saveAllData();
-    } else {
-      userEmail = "";
-    }
-    renderApp();
-  }
-
-  function logout() {
-    sessionStorage.removeItem("cognito_id_token");
-    sessionStorage.removeItem("cognito_access_token");
-    sessionStorage.removeItem("pkce_verifier");
-    loggedIn = false;
-    userEmail = "";
-    const params = new URLSearchParams({
-      client_id: COGNITO_CLIENT_ID,
-      logout_uri: REDIRECT_URI
-    });
-    window.location.assign(`${COGNITO_DOMAIN}/logout?${params.toString()}`);
-  }
-
-  // ---------- UPDATE FUNCTIONS (with re-render & persistence) ----------
-  function updateFootsteps(val) { footsteps = Math.max(0, val); saveAllData(); renderApp(); }
-  function updateCalories(val) { calories = Math.max(0, val); saveAllData(); renderApp(); }
-  function updateHeartRate(val) { heartRate = Math.max(30, val); saveAllData(); renderApp(); }
-  function updateWeight(val) { weight = Math.max(20, val); saveAllData(); renderApp(); void saveHealthToAWS(); }
-  function updateSleepHours(val) { sleepHours = Math.max(0, val); saveAllData(); renderApp(); }
-  function updateWater(val) { waterIntake = Math.max(0, val); saveAllData(); renderApp(); void saveHealthToAWS(); }
-  function updateRespiratory(val) { respiratoryRate = Math.max(8, val); saveAllData(); renderApp(); }
-  function updateGlucose(val) { bloodGlucose = Math.max(40, val); saveAllData(); renderApp(); }
-  function updateSleepGoal(val) { sleepGoal = Math.max(4, val); saveAllData(); renderApp(); }
-  function updateWorkout(val) { workoutMinutes = Math.max(0, val); saveAllData(); renderApp(); }
-  
-  // ---------- INJURY ADVICE ENGINE (active & intelligent) ----------
-  function getInjuryAdvice(injuryType) {
-    const adv = {
-      "ankle sprain": "🩹 RICE protocol: Rest, Ice (15 min), Compression bandage, Elevation. Take Ibuprofen 400mg every 6-8h if needed. Gentle ankle alphabet exercises after 48h.",
-      "knee pain": "❄️ Apply ice pack 15min. Acetaminophen 500mg as needed. Low-impact: stationary bike, straight leg raises. Avoid deep squats.",
-      "headache": "💧 Hydrate, rest in dark. Paracetamol 500mg. Gentle neck stretches & magnesium-rich foods. Limit screen time.",
-      "muscle strain": "🔥 Heat after 24h. Ibuprofen 400mg. Light stretching & foam rolling. Strengthening after 3 days.",
-      "back pain": "🧘 Heat therapy, gentle cat-cow stretch. Naproxen 220mg if needed. Avoid heavy lifting. Core exercises later.",
-      "default": "Rest area, apply ice 15-20 min. Over-the-counter pain relief: Ibuprofen or Acetaminophen. Consult if severe."
-    };
-    const lower = injuryType.toLowerCase();
-    if (lower.includes("ankle")) return adv["ankle sprain"];
-    if (lower.includes("knee")) return adv["knee pain"];
-    if (lower.includes("head") || lower.includes("migraine")) return adv["headache"];
-    if (lower.includes("muscle")) return adv["muscle strain"];
-    if (lower.includes("back")) return adv["back pain"];
-    return adv["default"];
-  }
-  
-  // ---------- ACTIVE FOOD SCANNER (fully functional) ----------
-  function scanFoodItem(foodName) {
-    if (!foodName.trim()) return "⚠️ Please enter a food name to scan.";
-    // realistic calorie mapping
-    const calorieMap = {
-      "apple": 95, "banana": 105, "pizza": 285, "salad": 150, "chicken": 165, "rice": 200, 
-      "sandwich": 350, "burger": 550, "smoothie": 210, "yogurt": 120, "oatmeal": 158, "broccoli": 55
-    };
-    let cals = 0;
-    for (let [key, val] of Object.entries(calorieMap)) {
-      if (foodName.toLowerCase().includes(key)) { cals = val; break; }
-    }
-    if (cals === 0) cals = Math.floor(Math.random() * 220) + 70;
-    lastScannedFood = { name: foodName, calories: cals };
-    // add scanned calories to daily total
-    calories += cals;
-    saveAllData();
-    renderApp();
-    return `✅ Scanned: "${foodName}" → +${cals} kcal added. Today's calories updated.`;
-  }
-  
-  // Helper: random exercise generator
-  function getRandomExercise() {
-    const exercises = [
-      "🧘 10 min morning yoga flow", "🏃 15 min brisk walk (great for heart)", "💪 3 sets of 12 push-ups", 
-      "🦵 Lunges 12 reps each leg", "🤸 Full body stretch & deep breathing", "🚴‍♀️ Stationary bike 20 min", 
-      "🏋️‍♀️ Squats 3x15", "🧘‍♂️ Breathing exercise: 4-7-8 technique"
-    ];
-    return exercises[Math.floor(Math.random() * exercises.length)];
-  }
-  
-  // ---------- RENDER LOGIN OR MAIN DASHBOARD (All features + Back Home) ----------
-  function renderApp() {
-    const root = document.getElementById('appRoot');
-    if (!root) return;
-    
-    // LOGIN SCREEN
-    if (!loggedIn) {
-      root.innerHTML = `
-        <div style="padding: 40px 24px; display: flex; flex-direction: column; gap: 24px;">
-          <div class="logo" style="justify-content: center; margin-bottom: 10px;">
-            <div class="logo-icon"><i class="fas fa-heartbeat"></i></div>
-            <div class="logo-text"><h2>Personal Health Tracker</h2><p>live well, track better</p></div>
-          </div>
-          <div style="background: white; border-radius: 48px; padding: 28px 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.05);">
-            <h3 style="color:#1a6d8f;">Sign in securely</h3>
-            <p style="font-size:0.8rem; margin: 10px 0;">Sign in securely with your registered account.</p>
-            <button id="doLoginBtn" class="btn-primary" style="width:100%">Continue to secure sign in <i class="fas fa-arrow-right"></i></button>
-            <div class="trial-badge" style="margin-top: 20px; text-align:center; background:#d9eefb;">✨ Free trial active – all features unlocked ✨</div>
-          </div>
-        </div>
-      `;
-      const loginBtn = document.getElementById('doLoginBtn');
-      if (loginBtn) loginBtn.onclick = () => loginWithCreds();
+      renderDashboard();
       return;
     }
-    
-    // ---------- MAIN DASHBOARD (LOGGED IN) ----------
-    const injuryPreview = getInjuryAdvice("general");
-    const html = `
-      <div class="app-header">
-        <div class="logo-area">
-          <div class="logo">
-            <div class="logo-icon"><i class="fas fa-heartbeat"></i></div>
-            <div class="logo-text">
-              <h2>Personal Health Tracker</h2>
-              <p>track · heal · thrive</p>
-            </div>
-          </div>
-          <div class="trial-badge"><i class="fas fa-gem"></i> 30-day free trial</div>
-        </div>
-        <div class="user-row">
-          <div class="greeting"><i class="fas fa-user"></i> Hello, ${userEmail.split('@')[0]} | 🔥 Streak: ${streak} days</div>
-          <button class="logout-btn" id="logoutButton"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </div>
-      </div>
-      
-      <div class="dashboard">
-        <!-- Primary metrics grid -->
-        <div class="stats-grid">
-          <div class="stat-card"><i class="fas fa-shoe-prints"></i><h4>FOOTSTEPS</h4><div class="stat-value">${footsteps.toLocaleString()}</div><button class="small-action" id="addStepsBtn">+500 steps</button></div>
-          <div class="stat-card"><i class="fas fa-fire"></i><h4>CALORIES</h4><div class="stat-value">${Math.round(calories)} <span class="unit">kcal</span></div><button class="small-action" id="adjustCalBtn">+50 kcal</button></div>
-          <div class="stat-card"><i class="fas fa-heartbeat"></i><h4>HEART RATE</h4><div class="stat-value">${heartRate} <span class="unit">bpm</span></div><button class="small-action" id="adjustHrBtn">simulate</button></div>
-          <div class="stat-card"><i class="fas fa-weight-scale"></i><h4>WEIGHT</h4><div class="stat-value">${weight} <span class="unit">kg</span></div><button class="small-action" id="editWeightBtn">✏️ update</button></div>
-        </div>
-        
-        <!-- Extended features: workout, sleep, water, respiratory, glucose -->
-        <div class="stats-grid">
-          <div class="stat-card"><i class="fas fa-person-walking"></i><h4>WORKOUT</h4><div class="stat-value">${workoutMinutes} min</div><button class="small-action" id="addWorkoutBtn">+15 min</button></div>
-          <div class="stat-card"><i class="fas fa-bed"></i><h4>SLEEP</h4><div class="stat-value">${sleepHours} hrs</div><small>Goal: ${sleepGoal} hrs</small><button class="small-action" id="setSleepGoalBtn">set goal</button></div>
-          <div class="stat-card"><i class="fas fa-tint"></i><h4>WATER</h4><div class="stat-value">${waterIntake} glasses</div><button class="small-action" id="waterPlusBtn">+1 glass</button></div>
-          <div class="stat-card"><i class="fas fa-lungs"></i><h4>RESPIRATORY</h4><div class="stat-value">${respiratoryRate} br/min</div><button class="small-action" id="editRespBtn">adjust</button></div>
-          <div class="stat-card"><i class="fas fa-droplet"></i><h4>BLOOD GLUCOSE</h4><div class="stat-value">${bloodGlucose} mg/dL</div><button class="small-action" id="editGlucoseBtn">update</button></div>
-        </div>
-        
-        <!-- ACTIVE FOOD SCANNER (fully working) -->
-        <div class="scanner-active">
-          <div class="flex-between"><h4 style="color:#1a6d8f;"><i class="fas fa-camera"></i> Scan Food (AI Powered)</h4><i class="fas fa-utensils"></i></div>
-          <div class="water-reminder" style="margin-top:8px;"><input type="text" id="foodNameInput" placeholder="e.g., apple, pizza, banana, salad" style="flex:1"><button id="scanFoodBtn" class="btn-primary" style="padding:8px 14px;">📷 Scan Now</button></div>
-          <div id="scanFeedback" class="scan-result"></div>
-        </div>
-        
-        <!-- INJURY & MEDICINE ADVICE SECTION (interactive) -->
-        <div class="section-title"><i class="fas fa-bandage"></i> Injury & Medicine Advisor</div>
-        <div class="advice-card">
-          <i class="fas fa-info-circle"></i> <strong>Describe your injury / pain:</strong><br>
-          <input type="text" id="injuryQuery" placeholder="e.g., ankle sprain, knee pain, headache, back pain" style="margin: 8px 0;">
-          <button id="getInjuryAdviceBtn" class="small-action">Get remedies & medicine advice</button>
-          <div id="injuryResult" style="margin-top: 10px; font-size:0.8rem; background:#fff; border-radius:20px; padding:8px;">💡 ${injuryPreview.substring(0,100)}...</div>
-        </div>
-        
-        <!-- HEALTHY ADVICE & EXERCISE SECTION -->
-        <div class="section-title"><i class="fas fa-leaf"></i> Healthy Advice & Exercises</div>
-        <div class="advice-card">
-          <p>🥗 <strong>Nutrition tip:</strong> Eat protein & fiber at every meal. Stay hydrated.</p>
-          <p>🧘 <strong>Wellness:</strong> 7-9 hrs sleep improves recovery. Reduce blue light before bed.</p>
-          <button id="randomExerciseBtn" class="small-action"><i class="fas fa-dumbbell"></i> Suggest an exercise</button>
-          <div id="exerciseDisplay" style="margin-top: 10px; font-style:italic;"></div>
-        </div>
-        
-        <!-- Water Reminder & Save Reports -->
-        <div class="section-title"><i class="fas fa-bell"></i> Reminders & Reports</div>
-        <div class="advice-card" style="display:flex; justify-content: space-between; align-items:center; flex-wrap:wrap;">
-          <span><i class="fas fa-tint"></i> Water reminder every 2h</span>
-          <button id="waterReminderBtn" class="small-action">Set reminder</button>
-        </div>
-        <div class="advice-card" style="margin-top: 8px;">
-          <strong>📄 Save health reports (PDF style)</strong><br>
-          <button id="saveReportBtn" class="small-action"><i class="fas fa-download"></i> Download my health summary</button>
-          <p style="font-size:0.7rem; margin-top:5px;">Includes steps, heart, glucose, sleep, workout & more.</p>
-        </div>
-        
-        <!-- Streak & motivation -->
-        <div class="streak-badge"><i class="fas fa-calendar-check"></i> 🔥 Streak: ${streak} days active | 💪 Keep going! Log daily to grow streak.</div>
-      </div>
-      
-      <!-- Floating back-to-home button -->
-      <div class="back-home-btn" id="backHomeBtn"><i class="fas fa-home"></i></div>
-    `;
-    
-    root.innerHTML = html;
-    
-    // ----- ATTACH ALL EVENT LISTENERS (ACTIVE FEATURES) -----
-    document.getElementById('logoutButton')?.addEventListener('click', logout);
-    document.getElementById('addStepsBtn')?.addEventListener('click', () => updateFootsteps(footsteps + 500));
-    document.getElementById('adjustCalBtn')?.addEventListener('click', () => updateCalories(calories + 50));
-    document.getElementById('adjustHrBtn')?.addEventListener('click', () => updateHeartRate(heartRate + Math.floor(Math.random() * 7) - 2));
-    document.getElementById('editWeightBtn')?.addEventListener('click', () => { let w = prompt("Enter weight (kg)", weight); if(w && !isNaN(w)) updateWeight(parseFloat(w)); });
-    document.getElementById('addWorkoutBtn')?.addEventListener('click', () => updateWorkout(workoutMinutes + 15));
-    document.getElementById('setSleepGoalBtn')?.addEventListener('click', () => { let g = prompt("Set your sleep goal (hours)", sleepGoal); if(g && !isNaN(g)) updateSleepGoal(parseFloat(g)); renderApp(); });
-    document.getElementById('waterPlusBtn')?.addEventListener('click', () => updateWater(waterIntake + 1));
-    document.getElementById('editRespBtn')?.addEventListener('click', () => { let r = prompt("Respiratory rate (breaths/min)", respiratoryRate); if(r && !isNaN(r)) updateRespiratory(parseInt(r)); });
-    document.getElementById('editGlucoseBtn')?.addEventListener('click', () => { let g = prompt("Blood glucose (mg/dL)", bloodGlucose); if(g && !isNaN(g)) updateGlucose(parseInt(g)); });
-    
-    // Food Scanner active
-    const scanBtn = document.getElementById('scanFoodBtn');
-    if (scanBtn) {
-      scanBtn.addEventListener('click', () => {
-        const food = document.getElementById('foodNameInput').value;
-        const msg = scanFoodItem(food);
-        const feedbackDiv = document.getElementById('scanFeedback');
-        if (feedbackDiv) feedbackDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
-        document.getElementById('foodNameInput').value = '';
-      });
-    }
-    
-    // Injury advice handler
-    document.getElementById('getInjuryAdviceBtn')?.addEventListener('click', () => {
-      const query = document.getElementById('injuryQuery').value;
-      const advice = getInjuryAdvice(query || "general");
-      document.getElementById('injuryResult').innerHTML = `<i class="fas fa-pills"></i> ${advice}<br><small>⚠️ Always consult a doctor for serious conditions.</small>`;
-    });
-    
-    // Random exercise
-    document.getElementById('randomExerciseBtn')?.addEventListener('click', () => {
-      const ex = getRandomExercise();
-      document.getElementById('exerciseDisplay').innerHTML = `✨ ${ex} ✨`;
-    });
-    
-    // Water reminder
-    document.getElementById('waterReminderBtn')?.addEventListener('click', () => {
-      alert("💧 Water reminder activated! Stay hydrated — we'll remind you every 2 hours (simulated).");
-    });
-    
-    // Save report as .txt file
-    document.getElementById('saveReportBtn')?.addEventListener('click', () => {
-      const report = `===== PERSONAL HEALTH REPORT =====\nUser: ${userEmail}\nDate: ${new Date().toLocaleString()}\n----------------------------------\n🚶 Footsteps: ${footsteps}\n🔥 Calories: ${Math.round(calories)} kcal\n❤️ Heart Rate: ${heartRate} bpm\n⚖️ Weight: ${weight} kg\n😴 Sleep: ${sleepHours} hrs (Goal: ${sleepGoal} hrs)\n💧 Water: ${waterIntake} glasses\n🌬️ Respiratory Rate: ${respiratoryRate} br/min\n🩸 Blood Glucose: ${bloodGlucose} mg/dL\n🏋️ Workout: ${workoutMinutes} min\n🔥 Streak: ${streak} days\n----------------------------------\nStay healthy & keep tracking!`;
-      const blob = new Blob([report], {type: "text/plain"});
-      const a = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      a.href = url;
-      a.download = `Health_Report_${Date.now()}.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-    
-    // BACK TO HOME: scrolls to top (main dashboard) and also can reset any view
-    const backHome = document.getElementById('backHomeBtn');
-    if (backHome) {
-      backHome.addEventListener('click', () => {
-        const container = document.querySelector('.app-container');
-        if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    }
+    sessionStorage.removeItem(TOKEN_KEY);
   }
+
+  renderLogin();
+}
+
+function renderLogin(errorMessage = "") {
+  document.getElementById("appRoot").innerHTML = `
+    <div class="login-wrap">
+      <div class="logo-area">
+        <div class="logo">
+          <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+          <div class="logo-text">
+            <h2>LiveWell</h2>
+            <p>PERSONAL HEALTH TRACKER</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="login-card">
+        <h3>Welcome to your health journey!</h3>
+        <p>Sign in securely to track your daily wellness, water intake, weight and healthy habits.</p>
+        ${errorMessage ? `<div class="scan-result" role="alert">${escapeHTML(errorMessage)}</div>` : ""}
+        <button class="btn-primary" style="width:100%;margin-top:14px"
+          onclick="loginWithCreds()">
+          <i class="fa-solid fa-lock"></i> Sign in with AWS Cognito
+        </button>
+        <p style="font-size:.72rem;color:#678;margin-top:16px">
+          Your account is authenticated through Amazon Cognito.
+        </p>
+      </div>
+
+      <div class="advice-card">
+        <h3><i class="fa-solid fa-leaf"></i> Small habits, better health</h3>
+        <p style="font-size:.83rem;margin-top:8px">
+          Track your habits consistently. Your dashboard helps you reflect on your daily activity and wellness.
+        </p>
+      </div>
+    </div>`;
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[ch]);
+}
+
+function renderDashboard() {
+  const root = document.getElementById("appRoot");
+
+  root.innerHTML = `
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo">
+          <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+          <div class="logo-text">
+            <h2>LiveWell</h2>
+            <p>YOUR PERSONAL HEALTH TRACKER</p>
+          </div>
+        </div>
+        <span class="trial-badge">MY WELLNESS</span>
+      </div>
+
+      <div class="user-row">
+        <span class="greeting"><i class="fa-solid fa-user"></i>
+          ${escapeHTML(userEmail)}</span>
+        <button class="logout-btn" onclick="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Sign out
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <h3 style="font-size:1.2rem;color:#226f8f;margin-bottom:6px">
+        Your daily overview
+      </h3>
+      <p style="font-size:.8rem;color:#668;margin-bottom:16px">
+        ${escapeHTML(new Date().toLocaleDateString(undefined, {
+          weekday:"long",year:"numeric",month:"long",day:"numeric"
+        }))}
+      </p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <i class="fa-solid fa-person-walking"></i>
+          <h4>Daily Steps</h4>
+          <div class="stat-value" id="stepsValue">${footsteps.toLocaleString()}</div>
+          <div style="font-size:.7rem;color:#668">Illustrative value</div>
+          <button class="small-action" onclick="editSteps()">Update steps</button>
+        </div>
+
+        <div class="stat-card">
+          <i class="fa-solid fa-fire"></i>
+          <h4>Calories</h4>
+          <div class="stat-value" id="caloriesValue">${calories}</div>
+          <div style="font-size:.7rem;color:#668">Estimated daily intake (kcal)</div>
+          <button class="small-action" onclick="editCalories()">Update estimate</button>
+        </div>
+
+        <div class="stat-card">
+          <i class="fa-solid fa-heart-pulse"></i>
+          <h4>Heart Rate</h4>
+          <div class="stat-value">${heartRate} <span class="unit">bpm</span></div>
+          <div style="font-size:.7rem;color:#668">Sample value, not a live reading</div>
+        </div>
+
+        <div class="stat-card">
+          <i class="fa-solid fa-moon"></i>
+          <h4>Sleep</h4>
+          <div class="stat-value">${sleepHours} <span class="unit">hours</span></div>
+          <div style="font-size:.7rem;color:#668">Your sleep estimate</div>
+          <button class="small-action" onclick="editSleep()">Update sleep</button>
+        </div>
+      </div>
+
+      <h3 class="section-title"><i class="fa-solid fa-weight-scale"></i> Weight Tracker</h3>
+      <div class="advice-card">
+        <p style="font-size:.85rem">Current weight</p>
+        <div class="stat-value"><span id="weightValue">${weight}</span> <span class="unit">kg</span></div>
+        <label for="weightInput" style="font-size:.8rem">Update your weight (kg)</label>
+        <input id="weightInput" type="number" min="1" max="500" step="0.1"
+          placeholder="Enter weight in kg">
+        <button class="btn-primary" style="margin-top:10px" onclick="updateWeight()">
+          Save weight
+        </button>
+      </div>
+
+      <h3 class="section-title"><i class="fa-solid fa-glass-water"></i> Water Tracker</h3>
+      <div class="advice-card">
+        <div class="flex-between">
+          <span>Glasses consumed</span>
+          <strong id="waterCount">${waterIntake}</strong>
+        </div>
+        <div style="background:#dcecf6;height:10px;border-radius:10px;margin:12px 0;overflow:hidden">
+          <div id="waterBar" style="height:100%;width:${Math.min(waterIntake / 8 * 100,100)}%;background:#5bb4dc;border-radius:10px"></div>
+        </div>
+        <p style="font-size:.76rem;color:#668;margin-bottom:10px">
+          Illustrative goal: 8 glasses daily. Your actual fluid needs vary.
+        </p>
+        <div class="flex-between">
+          <button class="small-action" onclick="changeWater(-1)">− Remove one</button>
+          <button class="btn-primary" onclick="changeWater(1)">+ Add a glass</button>
+        </div>
+      </div>
+
+      <h3 class="section-title"><i class="fa-solid fa-utensils"></i> Food Nutrition Estimator</h3>
+      <div class="scanner-active">
+        <p style="font-size:.85rem;margin-bottom:5px">
+          Enter a food to get an approximate nutrition estimate.
+        </p>
+        <label for="foodInput" style="font-size:.8rem">Food name</label>
+        <input id="foodInput" type="text" placeholder="e.g. idli, banana, rice">
+        <label for="foodAmount" style="font-size:.8rem">Quantity / serving</label>
+        <select id="foodAmount">
+          <option value="1">1 standard serving</option>
+          <option value="0.5">Half serving</option>
+          <option value="2">2 servings</option>
+        </select>
+        <button class="btn-primary" style="margin-top:12px;width:100%"
+          onclick="estimateFood()">
+          Estimate nutrition
+        </button>
+        <div id="foodResult" class="scan-result" hidden></div>
+        <p style="font-size:.7rem;color:#678;margin-top:10px">
+          This is a simple illustrative estimator, not an AI food scanner or laboratory analysis.
+        </p>
+      </div>
+
+      <h3 class="section-title"><i class="fa-solid fa-dumbbell"></i> Exercise Suggestions</h3>
+      <div class="advice-card">
+        <label for="activityLevel" style="font-size:.8rem">Choose your activity level</label>
+        <select id="activityLevel">
+          <option value="beginner">Beginner / not very active</option>
+          <option value="moderate">Moderately active</option>
+          <option value="active">Already active</option>
+        </select>
+        <button class="btn-primary" style="margin-top:10px;width:100%"
+          onclick="suggestExercise()">Get suggestions</button>
+        <div id="exerciseResult" class="scan-result" hidden></div>
+      </div>
+
+      <h3 class="section-title"><i class="fa-solid fa-bell"></i> Wellness Reminders</h3>
+      <div class="advice-card">
+        <label for="reminderTime" style="font-size:.8rem">Water reminder interval</label>
+        <select id="reminderTime">
+          <option value="60">Every 1 hour</option>
+          <option value="90">Every 1.5 hours</option>
+          <option value="120">Every 2 hours</option>
+        </select>
+        <button class="btn-primary" style="margin-top:10px;width:100%"
+          onclick="startWaterReminder()">Enable reminder while page is open</button>
+        <button class="small-action" style="margin-top:10px" onclick="stopWaterReminder()">
+          Stop reminder
+        </button>
+        <div id="reminderStatus" style="font-size:.75rem;margin-top:10px"></div>
+        <p style="font-size:.7rem;color:#678;margin-top:8px">
+          Browser reminders work only while this page remains open. Notification permission may be requested.
+        </p>
+      </div>
+
+      <h3 class="section-title"><i class="fa-solid fa-file-lines"></i> Health Summary</h3>
+      <div class="advice-card">
+        <p style="font-size:.82rem;margin-bottom:12px">
+          Generate a simple report of your currently displayed wellness values.
+        </p>
+        <button class="btn-primary" style="width:100%" onclick="downloadReport()">
+          <i class="fa-solid fa-download"></i> Download health report
+        </button>
+      </div>
+
+      <div class="streak-badge">
+        <i class="fa-solid fa-fire" style="color:#edaa45"></i>
+        Wellness check-in streak: <span id="streakValue">${streak}</span> day(s)
+      </div>
+
+      <p style="font-size:.68rem;color:#789;margin-top:18px;line-height:1.6">
+        Health information shown here is for general wellness tracking only.
+        Some displayed measurements are sample values. This application does not
+        diagnose conditions or replace professional medical advice.
+      </p>
+    </main>
+
+    <button class="back-home-btn" aria-label="Back to top"
+      onclick="document.querySelector('.dashboard').scrollIntoView({behavior:'smooth'})">
+      <i class="fa-solid fa-arrow-up"></i>
+    </button>
+  `;
+
+  updateWaterDisplay();
+}
+
+function logout() {
+  loggedIn = false;
+  sessionStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem("cognito_access_token");
+  sessionStorage.removeItem("pkce_verifier");
+
+  const params = new URLSearchParams({
+    client_id: COGNITO_CLIENT_ID,
+    logout_uri: REDIRECT_URI
+  });
+
+  window.location.assign(`${COGNITO_DOMAIN}/logout?${params.toString()}`);
+}
+
+function editSteps() {
+  const value = prompt("Enter your step count:", String(footsteps));
+  if (value === null) return;
+  const number = Number(value);
+  if (!Number.isInteger(number) || number < 0 || number > 200000) {
+    alert("Please enter a whole number from 0 to 200000.");
+    return;
+  }
+  footsteps = number;
+  saveAllData();
+  renderDashboard();
+}
+
+function editCalories() {
+  const value = prompt("Enter estimated daily calories (kcal):", String(calories));
+  if (value === null) return;
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0 || number > 20000) {
+    alert("Please enter a valid calorie estimate.");
+    return;
+  }
+  calories = Math.round(number);
+  saveAllData();
+  renderDashboard();
+}
+
+function editSleep() {
+  const value = prompt("Enter sleep duration in hours:", String(sleepHours));
+  if (value === null) return;
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0 || number > 24) {
+    alert("Please enter a number between 0 and 24.");
+    return;
+  }
+  sleepHours = Math.round(number * 10) / 10;
+  saveAllData();
+  renderDashboard();
+}
+
+async function updateWeight() {
+  const field = document.getElementById("weightInput");
+  const value = Number(field.value);
+
+  if (!field.value || !Number.isFinite(value) || value < 1 || value > 500) {
+    alert("Please enter a valid weight between 1 and 500 kg.");
+    return;
+  }
+
+  weight = Math.round(value * 10) / 10;
+  saveAllData();
+  document.getElementById("weightValue").textContent = weight;
+  field.value = "";
+  await saveHealthToAWS();
+}
+
+async function changeWater(amount) {
+  waterIntake = Math.max(0, Math.min(50, waterIntake + amount));
+  saveAllData();
+  updateWaterDisplay();
+  await saveHealthToAWS();
+}
+
+function updateWaterDisplay() {
+  const count = document.getElementById("waterCount");
+  const bar = document.getElementById("waterBar");
+  if (count) count.textContent = waterIntake;
+  if (bar) bar.style.width = Math.min(waterIntake / 8 * 100,100) + "%";
+}
+
+function estimateFood() {
+  const input = document.getElementById("foodInput");
+  const amount = Number(document.getElementById("foodAmount").value);
+  const name = input.value.trim().toLowerCase();
+  const result = document.getElementById("foodResult");
+
+  if (!name) {
+    alert("Please enter a food name.");
+    input.focus();
+    return;
+  }
+
+  const foods = {
+    "idli": {kcal:58,protein:2,carbs:12,fat:0.4},
+    "dosa": {kcal:168,protein:4,carbs:27,fat:5},
+    "rice": {kcal:205,protein:4.3,carbs:45,fat:0.4},
+    "white rice": {kcal:205,protein:4.3,carbs:45,fat:0.4},
+    "chapati": {kcal:120,protein:3.5,carbs:20,fat:3},
+    "roti": {kcal:120,protein:3.5,carbs:20,fat:3},
+    "banana": {kcal:105,protein:1.3,carbs:27,fat:0.4},
+    "apple": {kcal:95,protein:0.5,carbs:25,fat:0.3},
+    "egg": {kcal:78,protein:6.3,carbs:0.6,fat:5.3},
+    "boiled egg": {kcal:78,protein:6.3,carbs:0.6,fat:5.3},
+    "milk": {kcal:122,protein:8,carbs:12,fat:5},
+    "curd": {kcal:100,protein:5,carbs:7,fat:5},
+    "yogurt": {kcal:100,protein:5,carbs:7,fat:5},
+    "oats": {kcal:154,protein:5.3,carbs:27,fat:2.6},
+    "almonds": {kcal:164,protein:6,carbs:6,fat:14},
+    "peanuts": {kcal:166,protein:7,carbs:6,fat:14},
+    "chicken": {kcal:231,protein:43,carbs:0,fat:5},
+    "paneer": {kcal:265,protein:18,carbs:4,fat:20},
+    "potato": {kcal:130,protein:3,carbs:30,fat:0.2},
+    "orange": {kcal:62,protein:1.2,carbs:15,fat:0.2}
+  };
+
+  const food = foods[name];
+  result.hidden = false;
+
+  if (!food) {
+    result.textContent = "No entry found for this food. Try idli, dosa, rice, chapati, banana, apple, egg, milk, curd, oats, almonds, peanuts, chicken, paneer, potato or orange.";
+    return;
+  }
+
+  const kcal = Math.round(food.kcal * amount);
+  const protein = (food.protein * amount).toFixed(1);
+  const carbs = (food.carbs * amount).toFixed(1);
+  const fat = (food.fat * amount).toFixed(1);
+
+  result.innerHTML = `
+    <strong>${escapeHTML(name)}</strong> — estimated nutrition<br>
+    Calories: ${kcal} kcal<br>
+    Protein: ${protein} g<br>
+    Carbohydrates: ${carbs} g<br>
+    Fat: ${fat} g<br>
+    <span style="font-size:.7rem">Approximate values; actual nutrition depends on serving size and preparation.</span>
+  `;
+
+  lastScannedFood = {name,amount,kcal,protein,carbs,fat};
+}
+
+function suggestExercise() {
+  const level = document.getElementById("activityLevel").value;
+  const result = document.getElementById("exerciseResult");
+  const suggestions = {
+    beginner: "Start gently: try a comfortable 10–15 minute walk, light stretching, and regular breaks from sitting. Increase duration gradually as you feel comfortable.",
+    moderate: "Consider a brisk walk, cycling, dancing or another activity you enjoy for 20–30 minutes. Include gentle strength exercises on suitable days.",
+    active: "Maintain a balanced routine with aerobic activity, strength training and recovery days. Adjust intensity to your fitness level and avoid training through pain."
+  };
+  result.hidden = false;
+  result.textContent = suggestions[level] +
+    " Stop if you feel unwell. Seek medical advice before exercising if you have a health concern or injury.";
+}
   
-  // ----- INITIALIZE APP -----
-  loadAllData();
-  loggedIn = Boolean(sessionStorage.getItem("cognito_id_token"));
-  handleCognitoCallback();
-</script>
-</body>
-</html>
+let reminderInterval = null;
+
+function startWaterReminder() {
+  stopWaterReminder();
+
+  const minutes = Number(document.getElementById("reminderTime").value);
+  const status = document.getElementById("reminderStatus");
+
+  if (!Number.isFinite(minutes) || minutes <= 0) {
+    status.textContent = "Please choose a valid reminder interval.";
+    return;
+  }
+
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission().catch(err =>
+      console.warn("Notification permission request failed:", err)
+    );
+  }
+
+  reminderInterval = window.setInterval(() => {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("LiveWell Water Reminder", {
+        body: "Take a moment to check whether you need some water."
+      });
+    } else {
+      alert("LiveWell reminder: Remember to check your hydration!");
+    }
+  }, minutes * 60 * 1000);
+
+  status.textContent =
+    `Reminder enabled every ${minutes} minutes while this page remains open.`;
+}
+
+function stopWaterReminder() {
+  if (reminderInterval !== null) {
+    window.clearInterval(reminderInterval);
+    reminderInterval = null;
+  }
+
+  const status = document.getElementById("reminderStatus");
+  if (status) status.textContent = "Water reminder is stopped.";
+}
+
+function downloadReport() {
+  const report = {
+    application: "LiveWell Personal Health Tracker",
+    generatedAt: new Date().toLocaleString(),
+    account: userEmail,
+    wellnessStreakDays: streak,
+    steps: footsteps,
+    estimatedCaloriesKcal: calories,
+    heartRateBpm: heartRate,
+    weightKg: weight,
+    sleepHours: sleepHours,
+    waterGlasses: waterIntake,
+    respiratoryRatePerMinute: respiratoryRate,
+    bloodGlucoseMgDl: bloodGlucose,
+    workoutMinutes: workoutMinutes,
+    lastFoodEstimate: lastScannedFood,
+    note: "Some values are sample or user-entered estimates, not live medical measurements. This report is not a diagnosis."
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(report, null, 2)],
+    { type: "application/json;charset=utf-8" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "LiveWell-Health-Report.json";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+loadAllData();
+
+/* Start the app after the page is ready. */
+handleAuthentication().catch(error => {
+  console.error("Application startup error:", error);
+  renderLogin("The app could not finish loading. Please refresh and try signing in again.");
+});
+
