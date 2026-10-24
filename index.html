@@ -37,15 +37,11 @@ input,select{border:1px solid #cde3f5;border-radius:16px;padding:10px 12px;width
 <div class="app-container" id="appRoot"></div>
 <script>
 "use strict";
-
-/* AWS SETTINGS — keep these matched to your AWS configuration. */
-const COGNITO_DOMAIN = "https://us-east-1ze1lof1ye.auth.us-east-1.amazoncognito.com";
-const COGNITO_CLIENT_ID = "4anv9odruvjtbm84sbtpl4hpmd";
+/* APPLICATION SETTINGS */
 const REDIRECT_URI = "https://staging.dy3f0mmo0bton.amplifyapp.com/";
 const API_URL = "https://gl8fu5pf2i.execute-api.us-east-1.amazonaws.com/health";
-
 const STORAGE_KEY = "healthTrackerData";
-const TOKEN_KEY = "cognito_id_token";
+
 let loggedIn = false, userEmail = "", streak = 0, lastLoginDate = null;
 let footsteps = 7842, calories = 2150, heartRate = 72, weight = 68;
 let sleepHours = 7.2, waterIntake = 4, respiratoryRate = 16;
@@ -98,247 +94,26 @@ function updateStreakOnLogin() {
 }
 
 /* PKCE helpers — safely encode Base64URL without the previous "g is not defined" bug. */
-function randomString(length = 64) {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-  const bytes = new Uint8Array(length);
-  crypto.getRandomValues(bytes);
-  let result = "";
-  for (let i = 0; i < bytes.length; i++) {
-    result += chars[bytes[i] % chars.length];
-  }
-  return result;
-}
-
-function base64UrlEncode(buffer) {
-  const bytes = new Uint8Array(buffer);
-  let binary = "";
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return window.btoa(binary)
-    .split("+").join("-")
-    .split("/").join("_")
-    .replace(/=+$/, "");
-}
-
-async function createCodeChallenge(verifier) {
-  if (!window.crypto || !crypto.subtle) {
-    throw new Error("Secure browser cryptography is unavailable. Open the HTTPS website.");
-  }
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(verifier)
-  );
-  return base64UrlEncode(digest);
-}
-
-function decodeJwtPayload(token) {
-  try {
-    const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = part + "=".repeat((4 - part.length % 4) % 4);
-    const binary = atob(padded);
-    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
-    return JSON.parse(new TextDecoder().decode(bytes));
-  } catch (e) {
-    console.warn("Could not decode token payload", e);
-    return {};
-  }
-}
-
-async function loginWithCreds() {
-  try {
-    const verifier = randomString();
-    const challenge = await createCodeChallenge(verifier);
-    sessionStorage.setItem("pkce_verifier", verifier);
-
-    const params = new URLSearchParams({
-      response_type: "code",
-      client_id: COGNITO_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
-      scope: "openid email phone",
-      code_challenge_method: "S256",
-      code_challenge: challenge
-    });
-
-    window.location.assign(
-      `${COGNITO_DOMAIN}/oauth2/authorize?${params.toString()}`
-    );
-  } catch (e) {
-    console.error("Could not start Cognito sign-in:", e);
-    alert("Could not start secure sign-in: " +
-      (e.message || "Please open the deployed HTTPS website and try again."));
-  }
-}
-
-async function exchangeCognitoCode(code) {
-  const verifier = sessionStorage.getItem("pkce_verifier");
-  if (!verifier) {
-    throw new Error("The sign-in session expired. Please start sign-in again.");
-  }
-
-  const response = await fetch(`${COGNITO_DOMAIN}/oauth2/token`, {
-    method: "POST",
-    headers: {"Content-Type": "application/x-www-form-urlencoded"},
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      client_id: COGNITO_CLIENT_ID,
-      code,
-      redirect_uri: REDIRECT_URI,
-      code_verifier: verifier
-    })
-  });
-
-  const tokens = await response.json();
-  if (!response.ok || !tokens.id_token) {
-    throw new Error(
-      tokens.error_description || tokens.error || "Cognito token exchange failed."
-    );
-  }
-
-  sessionStorage.setItem(TOKEN_KEY, tokens.id_token);
-  if (tokens.access_token) {
-    sessionStorage.setItem("cognito_access_token", tokens.access_token);
-  }
-  sessionStorage.removeItem("pkce_verifier");
-  return tokens.id_token;
-}
-
+/* Cognito authentication removed. */
 async function loadHealthFromAWS() {
-  const token = sessionStorage.getItem(TOKEN_KEY);
-  if (!token) return;
-
-  const response = await fetch(API_URL, {
-    headers: {Authorization: `Bearer ${token}`}
-  });
-
-  if (!response.ok) {
-    throw new Error(`Could not load saved health data (HTTP ${response.status}).`);
-  }
-
-  const result = await response.json();
-  if (result.item) {
-    if (result.item.weight != null &&
-        Number.isFinite(Number(result.item.weight))) {
-      weight = Number(result.item.weight);
-    }
-    if (result.item.waterIntake != null &&
-        Number.isFinite(Number(result.item.waterIntake))) {
-      waterIntake = Number(result.item.waterIntake);
-    }
-    saveAllData();
-  }
-}
-
-async function saveHealthToAWS() {
-  const token = sessionStorage.getItem(TOKEN_KEY);
-  if (!token) return;
-
   try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({weight, waterIntake})
-    });
-
-    if (!response.ok) {
-      const detail = await response.json().catch(() => ({}));
-      throw new Error(detail.error || `Save failed (HTTP ${response.status}).`);
-    }
-  } catch (e) {
-    console.error("AWS health-data save failed:", e);
-    alert("Your change is shown on this page, but could not be saved to AWS. Check the connection and try again.");
+    loadAllData();
+  } catch (error) {
+    console.error("Could not load local health data:", error);
   }
 }
-  /* Handle Cognito's redirect back to the application. */
-async function handleAuthentication() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("code");
-  const error = params.get("error");
-
-  if (error) {
-    const message = params.get("error_description") || error;
-    window.history.replaceState({}, document.title, REDIRECT_URI);
-    renderLogin(message);
-    return;
+async function saveHealthToAWS() {
+  try {
+    saveAllData();
+  } catch (error) {
+    console.error("Could not save local health data:", error);
+    alert("Could not save your health data in this browser.");
   }
-
-  if (code) {
-    try {
-      const token = await exchangeCognitoCode(code);
-      const payload = decodeJwtPayload(token);
-      userEmail = payload.email || payload["cognito:username"] || "User";
-      loggedIn = true;
-      updateStreakOnLogin();
-      window.history.replaceState({}, document.title, REDIRECT_URI);
-      await loadHealthFromAWS();
-      renderDashboard();
-    } catch (e) {
-      console.error("Authentication error:", e);
-      sessionStorage.removeItem(TOKEN_KEY);
-      window.history.replaceState({}, document.title, REDIRECT_URI);
-      renderLogin(e.message || "Sign-in failed. Please try again.");
-    }
-    return;
-  }
-
-  const token = sessionStorage.getItem(TOKEN_KEY);
-  if (token) {
-    const payload = decodeJwtPayload(token);
-    if (payload.exp && payload.exp * 1000 > Date.now()) {
-      userEmail = payload.email || payload["cognito:username"] || "User";
-      loggedIn = true;
-      updateStreakOnLogin();
-      try {
-        await loadHealthFromAWS();
-      } catch (e) {
-        console.warn("AWS data could not be loaded:", e);
-      }
-      renderDashboard();
-      return;
-    }
-    sessionStorage.removeItem(TOKEN_KEY);
-  }
-
-  renderLogin();
 }
 
-function renderLogin(errorMessage = "") {
-  document.getElementById("appRoot").innerHTML = `
-    <div class="login-wrap">
-      <div class="logo-area">
-        <div class="logo">
-          <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
-          <div class="logo-text">
-            <h2>LiveWell</h2>
-            <p>PERSONAL HEALTH TRACKER</p>
-          </div>
-        </div>
-      </div>
 
-      <div class="login-card">
-        <h3>Welcome to your health journey!</h3>
-        <p>Sign in securely to track your daily wellness, water intake, weight and healthy habits.</p>
-        ${errorMessage ? `<div class="scan-result" role="alert">${escapeHTML(errorMessage)}</div>` : ""}
-        <button class="btn-primary" style="width:100%;margin-top:14px"
-          onclick="loginWithCreds()">
-          <i class="fa-solid fa-lock"></i> Sign in with AWS Cognito
-        </button>
-        <p style="font-size:.72rem;color:#678;margin-top:16px">
-          Your account is authenticated through Amazon Cognito.
-        </p>
-      </div>
 
-      <div class="advice-card">
-        <h3><i class="fa-solid fa-leaf"></i> Small habits, better health</h3>
-        <p style="font-size:.83rem;margin-top:8px">
-          Track your habits consistently. Your dashboard helps you reflect on your daily activity and wellness.
-        </p>
-      </div>
-    </div>`;
-}
+  
 
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, ch => ({
@@ -536,18 +311,9 @@ function renderDashboard() {
 
 function logout() {
   loggedIn = false;
-  sessionStorage.removeItem(TOKEN_KEY);
-  sessionStorage.removeItem("cognito_access_token");
-  sessionStorage.removeItem("pkce_verifier");
-
-  const params = new URLSearchParams({
-    client_id: COGNITO_CLIENT_ID,
-    logout_uri: REDIRECT_URI
-  });
-
-  window.location.assign(`${COGNITO_DOMAIN}/logout?${params.toString()}`);
+  userEmail = "User";
+  renderDashboard();
 }
-
 function editSteps() {
   const value = prompt("Enter your step count:", String(footsteps));
   if (value === null) return;
@@ -768,10 +534,25 @@ function downloadReport() {
 }
 
 loadAllData();
+  /* Start the health tracker without Cognito. */
+async function handleAuthentication() {
+  userEmail = "User";
+  loggedIn = true;
+  updateStreakOnLogin();
 
+  try {
+    await loadHealthFromAWS();
+  } catch (error) {
+    console.error("Could not load health data:", error);
+  }
+
+  renderDashboard();
+}
 /* Start the app after the page is ready. */
 handleAuthentication().catch(error => {
   console.error("Application startup error:", error);
-  renderLogin("The app could not finish loading. Please refresh and try signing in again.");
+  document.body.innerHTML =
+    "<h2>Unable to load the health tracker</h2><p>Please refresh the page and check the browser console.</p>";
 });
+  
 
